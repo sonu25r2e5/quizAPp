@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "523377696722",
+    "project_id": "quizeverse-43f19",
+    "storage_bucket": "quizeverse-43f19.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:523377696722:android:04937b0ab6bcea48a3f20b",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBpu_UsfFqvjuAWgvi5QN2Ka1pYqggHTjs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
