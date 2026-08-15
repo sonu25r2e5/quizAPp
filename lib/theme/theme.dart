@@ -5,7 +5,7 @@ class AppTheme {
   static const Color secondaryColor = Color(0xFF32CD32);
   static const Color backgroundColor = Color(0xFFF8F9FC);
   static const Color cardColor = Colors.white;
-  static const Color textPrimaryColor = Color(0xFF2D3748);
+  static const Color textPrimaryColor = Color.fromARGB(255, 6, 19, 43);
   static const Color textSecondaryColor = Color(0xFF718096);
 
   static ThemeData get theme {
@@ -17,7 +17,7 @@ class AppTheme {
         foregroundColor: textPrimaryColor,
         elevation: 0,
         centerTitle: true,
-        iconTheme: IconThemeData(color: textPrimaryColor),
+        iconTheme: IconThemeData(color: const Color.fromARGB(255, 13, 92, 237)),
       ),
       cardTheme: CardThemeData(
         color: cardColor,
@@ -33,6 +33,19 @@ class AppTheme {
             borderRadius: BorderRadius.circular(12),
           ),
         ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: backgroundColor,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(18),
+          borderSide: BorderSide(color: primaryColor),
+        ),
+        contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
       ),
     );
   }
