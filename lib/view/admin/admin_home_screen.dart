@@ -59,11 +59,30 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   }
 
   Widget _buildStatCard(String title, String value, String Icon, Color color) {
-    return Card(child: Padding(padding: EdgeInsetsGeometry.all(12)));
+    return Card(
+      child: Padding(
+        padding: EdgeInsetsGeometry.all(12),
+        child: Column(
+          children: [
+            Container(
+              padding: EdgeInsetsDirectional.all(12),
+
+              decoration: BoxDecoration(
+                color: color.withValues(green: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: Text('data'));
+    return Scaffold(
+      appBar: AppBar(title: Text('hi hellow')),
+      body: Center(child: Text('data')),
+    );
   }
 }
