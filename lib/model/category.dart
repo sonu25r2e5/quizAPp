@@ -1,26 +1,26 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'dart:convert';
 
 class Category {
   final String id;
   final String name;
   final String description;
-  final DateTime? createdAT;
+  final DateTime? createdAt;
 
   Category({
     required this.id,
     required this.name,
     required this.description,
-    this.createdAT,
+    this.createdAt,
   });
 
+  // String id is converted we use here.
   // converting the general JSON Map to User Object.
-  factory Category.fromMap(Map<String, dynamic> map) {
+  factory Category.fromMap(String id, Map<String, dynamic> map) {
     return Category(
       id: map['id'],
       name: map['name'] ?? "",
       description: map["description"] ?? "",
-      createdAT: map["createdAt"]?.toDate(),
+      createdAt: map["createdAt"]?.toDate(),
     );
   }
 
@@ -30,7 +30,7 @@ class Category {
       'id': id,
       'name': name,
       'description': description,
-      'createdAT': createdAT ?? DateTime.now(),
+      'createdAt': createdAt ?? DateTime.now(),
     };
   }
 
@@ -39,13 +39,13 @@ class Category {
     String? id,
     String? name,
     String? description,
-    DateTime? createdAT,
+    DateTime? createdAt,
   }) {
     return Category(
       id: id ?? this.id,
       name: name ?? this.name,
       description: description ?? this.description,
-      createdAT: createdAT,
+      createdAt: createdAt,
     );
   }
 }

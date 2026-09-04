@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class AppTheme {
   static const Color primaryColor = Color.fromARGB(215, 3, 6, 168);
-  static const Color secondaryColor = Color.fromARGB(255, 84, 105, 84);
+  static const Color secondaryColor = Color.fromARGB(255, 11, 179, 53);
   static const Color backgroundColor = Color.fromARGB(255, 212, 215, 224);
   static const Color cardColor = Color.fromARGB(255, 203, 185, 185);
   static const Color textPrimaryColor = Color.fromARGB(255, 6, 19, 43);
