@@ -17,7 +17,7 @@ class Category {
   // converting the general JSON Map to User Object.
   factory Category.fromMap(String id, Map<String, dynamic> map) {
     return Category(
-      id: map['id'],
+      id: id,
       name: map['name'] ?? "",
       description: map["description"] ?? "",
       createdAt: map["createdAt"]?.toDate(),

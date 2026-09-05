@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/theme/theme.dart';
 import 'package:flutter_application_1/model/category.dart';
+import 'package:flutter_application_1/view/admin/add_category_screen.dart';
+import 'package:flutter_application_1/view/admin/manage_quiz_screen.dart';
 
 class ManageCategoriesScreen extends StatefulWidget {
   const new({super.key});
@@ -17,6 +19,7 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: AppTheme.backgroundColor,
         title: Text(
           'ManageCategoriesScreen',
           style: TextStyle(fontWeight: FontWeight.bold),
@@ -24,7 +27,10 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
         actions: [
           IconButton(
             onPressed: () {
-              // Navigator.push(context, MaterialPageRoute(builder: builder) => AddCategoriesScrren());
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AddCategoryScreen()),
+              );
             },
             icon: Icon(Icons.add_circle_outline),
             color: AppTheme.primaryColor,
@@ -43,7 +49,8 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
           }
 
           // if the data is empty then we use this.
-          if (!snapshot.hasData) {
+          final data = snapshot.data;
+          if (data == null) {
             return Center(
               child: Column(
                 children: [
@@ -55,7 +62,7 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
             );
           }
           // for managing the screen we use this one.
-          final categories = snapshot.data!.docs
+          final categories = data.docs
               .map((doc) => Category.fromMap(doc.id, doc.data()))
               .toList();
 
@@ -75,7 +82,14 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
                     'No categories has been created do insert some of quiz \n question what are you waiting for boys\n',
                   ),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AddCategoryScreen(),
+                        ),
+                      );
+                    },
                     child: Text('Just add A Category'),
                   ),
                 ],
@@ -90,11 +104,19 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
               final Category category = categories[index];
               return Card(
                 margin: EdgeInsets.only(bottom: 12),
+                color: AppTheme.backgroundColor,
                 child: ListTile(
                   contentPadding: EdgeInsets.all(12),
-                  leading: Container(
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryColor.withValues(alpha: 0.2),
+                  leading: SizedBox(
+                    width: 48,
+                    height: 48,
+
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                      ),
+                      child: Icon(Icons.quiz_rounded),
                     ),
                   ),
                   title: Text(
@@ -106,7 +128,6 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
                     itemBuilder: (context) => [
                       PopupMenuItem(
                         value: "edit",
-
                         child: ListTile(
                           leading: Icon(
                             Icons.edit,
@@ -116,8 +137,29 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
                           contentPadding: EdgeInsets.zero,
                         ),
                       ),
+                      PopupMenuItem(
+                        value: "delete",
+                        child: ListTile(
+                          leading: Icon(Icons.delete, color: Colors.redAccent),
+                          title: Text("Delete"),
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                      ),
                     ],
+                    onSelected: (value) {
+                      _handleCategoryAction(context, value, category);
+                    },
                   ),
+                  onTap: () {
+                    // QuizListScreen(categoryId: )
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            MangeQuizScreen(categoryId: category.id),
+                      ),
+                    );
+                  },
                 ),
               );
             },
@@ -125,5 +167,47 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
         },
       ),
     );
+  }
+
+  Future<void> _handleCategoryAction(
+    BuildContext context,
+    String action,
+    Category category,
+  ) async {
+    if (action == "edit") {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AddCategoryScreen(category: category),
+        ),
+      );
+    } else if (action == "delete") {
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text("Do you want to delete Category"),
+          content: Text('Are you sure you want to delete this category'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, false);
+              },
+              child: Text('cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+              child: Text('Delete', style: TextStyle(color: Colors.redAccent)),
+            ),
+          ],
+        ),
+      );
+      // await _firestore.collection("categories").doc(category.id).delete();
+      if (confirm == true) {
+        // for instaling the itrem inside it  we use this line
+        await _firestore.collection('categories').doc(category.id).delete();
+      }
+    }
   }
 }
