@@ -7,6 +7,7 @@ Card recentlyActivites(
   String Function(DateTime) formatDate,
 ) {
   return Card(
+    color: AppTheme.backgroundColor,
     child: Padding(
       padding: EdgeInsetsGeometry.all(12),
       child: Column(

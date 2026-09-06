@@ -73,32 +73,35 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     Color color,
   ) {
     return Card(
+      color: AppTheme.backgroundColor,
       child: Padding(
         padding: EdgeInsetsGeometry.all(12),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding: EdgeInsetsDirectional.all(20),
+              padding: EdgeInsetsDirectional.all(10),
+              margin: EdgeInsets.only(top: 12, left: 12),
               decoration: BoxDecoration(
-                color: color.withValues(green: 0.1),
-                borderRadius: BorderRadius.circular(12),
+                color: AppTheme.cardColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(icon, color: color, size: 25),
+              child: Icon(icon, color: color, size: 40),
             ),
-            SizedBox(height: 16),
+            SizedBox(height: 10),
             Text(
               title,
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: AppTheme.textPrimaryColor,
               ),
             ),
-            SizedBox(height: 16),
+            SizedBox(height: 2),
             Text(
               value,
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 15,
                 fontWeight: FontWeight.bold,
                 color: AppTheme.textPrimaryColor,
               ),
@@ -114,8 +117,10 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     String title,
     VoidCallback onTap,
     IconData icon,
+    Color color,
   ) {
     return Card(
+      color: AppTheme.backgroundColor,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
@@ -127,15 +132,15 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                 Container(
                   padding: EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppTheme.secondaryColor,
+                    color: AppTheme.cardColor,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(icon, color: AppTheme.primaryColor, size: 12),
+                  child: Icon(icon, color: color, size: 35),
                 ),
-                SizedBox(height: 16),
+                SizedBox(height: 9),
                 Text(
                   title,
-                  textAlign: TextAlign.center,
+                  textAlign: TextAlign.start,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -204,17 +209,17 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                     children: [
                       Expanded(
                         child: _buildStatCard(
-                          'Total Categories',
                           stats['totalCatogries'].toString(),
+                          'Total Categories',
                           Icons.category_outlined,
-                          AppTheme.secondaryColor,
+                          AppTheme.primaryColor,
                         ),
                       ),
-                      SizedBox(height: 12),
+                      SizedBox(height: 20),
                       Expanded(
                         child: _buildStatCard(
-                          'Total Quizzes',
                           stats['totalQuizes'].toString(),
+                          'Total Quizzes',
                           Icons.quiz_rounded,
                           AppTheme.secondaryColor,
                         ),
@@ -227,12 +232,13 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                   recentlyActivites(latestQuizzes, _formatDate),
                   SizedBox(height: 24),
                   Card(
+                    color: AppTheme.backgroundColor,
                     child: Padding(
-                      padding: EdgeInsetsGeometry.all(12),
+                      padding: EdgeInsetsGeometry.all(10),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Icon(
                                 Icons.pie_chart_rounded,
@@ -254,27 +260,39 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                           GridView.count(
                             shrinkWrap: true,
                             physics: NeverScrollableScrollPhysics(),
-                            mainAxisSpacing: 16,
-                            childAspectRatio: 0.9,
+                            mainAxisSpacing: 8,
+                            childAspectRatio: .9,
                             crossAxisSpacing: 16,
                             crossAxisCount: 2,
                             children: [
-                              _buildDashBoard(context, 'CreateQuiz', () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => CreateQuizScreen(),
-                                  ),
-                                );
-                              }, Icons.add_rounded),
-                              _buildDashBoard(context, 'Manage_Quizzes', () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => MangeQuizScreen(),
-                                  ),
-                                );
-                              }, Icons.quiz_rounded),
+                              _buildDashBoard(
+                                context,
+                                'Create_Quiz',
+                                () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => CreateQuizScreen(),
+                                    ),
+                                  );
+                                },
+                                Icons.add_rounded,
+                                Colors.black,
+                              ),
+                              _buildDashBoard(
+                                context,
+                                'Manage_Quizzes',
+                                () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => MangeQuizScreen(),
+                                    ),
+                                  );
+                                },
+                                Icons.quiz_rounded,
+                                Colors.green,
+                              ),
                               _buildDashBoard(
                                 context,
                                 'Manages_Categories',
@@ -288,6 +306,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                   );
                                 },
                                 Icons.category_rounded,
+                                Colors.purple,
                               ),
                             ],
                           ),

@@ -4,6 +4,7 @@ import 'package:flutter_application_1/theme/theme.dart';
 
 Card categoryStatistics(List<dynamic> categoryData) {
   return Card(
+    color: AppTheme.backgroundColor,
     child: Padding(
       padding: EdgeInsetsGeometry.all(12),
       child: Column(
@@ -56,7 +57,7 @@ Card categoryStatistics(List<dynamic> categoryData) {
                             category['name'] as String,
                             style: TextStyle(
                               fontSize: 16,
-                              fontWeight: FontWeight.w100,
+                              fontWeight: FontWeight.bold,
                               color: AppTheme.textPrimaryColor,
                             ),
                           ),
@@ -67,7 +68,7 @@ Card categoryStatistics(List<dynamic> categoryData) {
 
                             style: TextStyle(
                               fontSize: 16,
-                              fontWeight: FontWeight.w100,
+                              fontWeight: FontWeight.bold,
                               color: AppTheme.textPrimaryColor,
                             ),
                           ),
@@ -83,12 +84,13 @@ Card categoryStatistics(List<dynamic> categoryData) {
                       ),
                       decoration: BoxDecoration(
                         color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        percentage.toStringAsFixed(1),
+                        "${percentage.toStringAsFixed(1)}%",
                         style: TextStyle(
                           fontSize: 12,
-                          fontWeight: FontWeight.w100,
+                          fontWeight: FontWeight.bold,
                           color: AppTheme.primaryColor,
                         ),
                       ),
