@@ -17,6 +17,29 @@ class AdminHomeScreen extends StatefulWidget {
 class _AdminHomeScreenState extends State<AdminHomeScreen> {
   // this is from the console store collection
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  late Future<Map<String, dynamic>> _statsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _statsFuture = _fetchStatistics();
+  }
+
+  Future<void> _refreshDashboard() async {
+    setState(() {
+      _statsFuture = _fetchStatistics();
+    });
+    await _statsFuture;
+  }
+
+  DateTime? _readTimestamp(dynamic value) {
+    if (value == null) return null;
+    if (value is Timestamp) return value.toDate();
+    if (value is DateTime) return value;
+    if (value is int) return DateTime.fromMillisecondsSinceEpoch(value);
+    if (value is String) return DateTime.tryParse(value);
+    return null;
+  }
 
   // map
   Future<Map<String, dynamic>> _fetchStatistics() async {
@@ -27,11 +50,17 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
 
     final quizzesCount = await _firestore.collection('quizzes').count().get();
 
-    final latestQuizzes = await _firestore
-        .collection('quizzes')
-        .orderBy('createdAt', descending: true)
-        .limit(5)
-        .get();
+    final allQuizzes = await _firestore.collection('quizzes').get();
+    final latestQuizzes = allQuizzes.docs.toList()
+      ..sort((a, b) {
+        final aDate =
+            _readTimestamp((a.data())['createdAt']) ??
+            DateTime.fromMillisecondsSinceEpoch(0);
+        final bDate =
+            _readTimestamp((b.data())['createdAt']) ??
+            DateTime.fromMillisecondsSinceEpoch(0);
+        return bDate.compareTo(aDate);
+      });
 
     final categories = await _firestore.collection('categories').get();
     // categories data
@@ -54,7 +83,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     return {
       'totalCatogries': categoriesCount.count,
       'totalQuizes': quizzesCount.count,
-      'latestQuizzes': latestQuizzes.docs,
+      'latestQuizzes': latestQuizzes.take(5).toList(),
       'categoryData': categoryData,
     };
   }
@@ -167,27 +196,28 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         ),
         elevation: 0,
       ),
-      body: FutureBuilder(
-        future: _fetchStatistics(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(color: AppTheme.primaryColor),
-            );
-          }
+      body: RefreshIndicator(
+        onRefresh: _refreshDashboard,
+        color: AppTheme.primaryColor,
+        child: FutureBuilder(
+          future: _statsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          if (snapshot.hasError) {
-            return Center(child: Text('error has occured sorry for loss'));
-          }
-          final Map<String, dynamic> stats = snapshot.data!;
-          final List<dynamic> categoryData = stats['categoryData'];
-          final List<QueryDocumentSnapshot> latestQuizzes =
-              stats['latestQuizzes'];
-          return SafeArea(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(12),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+            if (snapshot.hasError) {
+              return Center(child: Text('error has occured sorry for loss'));
+            }
+
+            final Map<String, dynamic> stats = snapshot.data!;
+            final List<dynamic> categoryData = stats['categoryData'];
+            final List<QueryDocumentSnapshot> latestQuizzes =
+                stats['latestQuizzes'];
+
+            return SafeArea(
+              child: ListView(
+                padding: EdgeInsets.all(12),
                 children: [
                   Text(
                     "Welcome Back admin",
@@ -205,6 +235,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       color: AppTheme.textPrimaryColor,
                     ),
                   ),
+                  SizedBox(height: 12),
                   Row(
                     children: [
                       Expanded(
@@ -215,7 +246,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                           AppTheme.primaryColor,
                         ),
                       ),
-                      SizedBox(height: 20),
+                      SizedBox(width: 12),
                       Expanded(
                         child: _buildStatCard(
                           stats['totalQuizes'].toString(),
@@ -310,17 +341,15 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                               ),
                             ],
                           ),
-
-                          // listview
                         ],
                       ),
                     ),
                   ),
                 ],
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

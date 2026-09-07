@@ -1,5 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Category {
   final String id;
   final String name;
@@ -13,28 +15,35 @@ class Category {
     this.createdAt,
   });
 
-  // String id is converted we use here.
-  // converting the general JSON Map to User Object.
+  static DateTime? _parseDate(dynamic value) {
+    if (value == null) return null;
+    if (value is Timestamp) return value.toDate();
+    if (value is DateTime) return value;
+    if (value is int) return DateTime.fromMillisecondsSinceEpoch(value);
+    if (value is String) return DateTime.tryParse(value);
+    return null;
+  }
+
   factory Category.fromMap(String id, Map<String, dynamic> map) {
     return Category(
       id: id,
-      name: map['name'] ?? "",
-      description: map["description"] ?? "",
-      createdAt: map["createdAt"]?.toDate(),
+      name: map['name'] ?? '',
+      description: map['description'] ?? '',
+      createdAt: _parseDate(map['createdAt']),
     );
   }
 
-  // convert user Object to json map
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'id': id,
       'name': name,
       'description': description,
-      'createdAt': createdAt ?? DateTime.now(),
+      'createdAt': createdAt != null
+          ? Timestamp.fromDate(createdAt!)
+          : FieldValue.serverTimestamp(),
     };
   }
 
-  // copy with helps to keep the copying of styling by thdifferen name
   Category copyWith({
     String? id,
     String? name,
@@ -45,9 +54,7 @@ class Category {
       id: id ?? this.id,
       name: name ?? this.name,
       description: description ?? this.description,
-      createdAt: createdAt,
+      createdAt: createdAt ?? this.createdAt,
     );
   }
 }
-
-// use serialization  package from the pub.dev  json_serializable package

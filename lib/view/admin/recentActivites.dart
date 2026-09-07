@@ -2,6 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/theme/theme.dart';
 
+DateTime? _parseFirestoreDate(dynamic value) {
+  if (value == null) return null;
+  if (value is Timestamp) return value.toDate();
+  if (value is DateTime) return value;
+  if (value is int) return DateTime.fromMillisecondsSinceEpoch(value);
+  if (value is String) return DateTime.tryParse(value);
+  return null;
+}
+
 Card recentlyActivites(
   List<QueryDocumentSnapshot<Object?>> latestQuizzes,
   String Function(DateTime) formatDate,
@@ -32,14 +41,13 @@ Card recentlyActivites(
             ],
           ),
           SizedBox(height: 20),
-          // listview
           ListView.builder(
             shrinkWrap: true,
-            //physis
             physics: NeverScrollableScrollPhysics(),
             itemCount: latestQuizzes.length,
             itemBuilder: (context, index) {
               final quiz = latestQuizzes[index].data() as Map<String, dynamic>;
+              final createdDate = _parseFirestoreDate(quiz['createdAt']);
 
               return Padding(
                 padding: EdgeInsets.all(12),
@@ -71,7 +79,7 @@ Card recentlyActivites(
                           ),
                           SizedBox(height: 2),
                           Text(
-                            'created on ${formatDate(quiz['createdAt'].toDate())}',
+                            'created on ${formatDate(createdDate ?? DateTime.now())}',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: AppTheme.textSecondaryColor,

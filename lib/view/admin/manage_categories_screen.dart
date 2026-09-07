@@ -101,6 +101,7 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
           return ListView.builder(
             itemCount: categories.length,
             itemBuilder: (BuildContext context, index) {
+              // for index we use this. Category class
               final Category category = categories[index];
               return Card(
                 margin: EdgeInsets.only(bottom: 12),
@@ -110,7 +111,6 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
                   leading: SizedBox(
                     width: 48,
                     height: 48,
-
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
@@ -155,8 +155,10 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            MangeQuizScreen(categoryId: category.id),
+                        builder: (context) => MangeQuizScreen(
+                          categoryId: category.id,
+                          categoryName: category.name,
+                        ),
                       ),
                     );
                   },

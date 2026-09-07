@@ -4,11 +4,13 @@ import 'package:flutter_application_1/model/category.dart';
 import 'package:flutter_application_1/model/quiz.dart';
 import 'package:flutter_application_1/theme/theme.dart';
 import 'package:flutter_application_1/view/admin/add_quiz_screen.dart';
+import 'package:flutter_application_1/view/admin/edit_quiz_screen.dart';
 
 class MangeQuizScreen extends StatefulWidget {
   final String? categoryId;
+  final String? categoryName;
 
-  const new({super.key, this.categoryId});
+  const MangeQuizScreen({super.key, this.categoryId, this.categoryName});
 
   @override
   State<MangeQuizScreen> createState() => _MangeQuizScreenState();
@@ -105,6 +107,13 @@ class _MangeQuizScreenState extends State<MangeQuizScreen> {
     );
   }
 
+  Future<void> _refreshQuizzes() async {
+    setState(() {
+      _searchQuery = _searchController.text.trim().toLowerCase();
+    });
+    await Future<void>.delayed(const Duration(milliseconds: 300));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -113,15 +122,19 @@ class _MangeQuizScreenState extends State<MangeQuizScreen> {
         title: _buildTitle(),
         actions: [
           IconButton(
-            // QUiz app content to shows
-            onPressed: () {
-              Navigator.push(
+            onPressed: () async {
+              await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                      AddQuizScreen(categoryId: widget.categoryId),
+                  builder: (context) => AddQuizScreen(
+                    categoryId: widget.categoryId,
+                    categoryName: widget.categoryName,
+                  ),
                 ),
               );
+              if (mounted) {
+                setState(() {});
+              }
             },
             icon: Icon(Icons.add_circle_outline),
             color: AppTheme.primaryColor,
@@ -130,7 +143,6 @@ class _MangeQuizScreenState extends State<MangeQuizScreen> {
       ),
       body: Column(
         children: [
-          //
           Padding(
             padding: EdgeInsets.all(12),
             child: TextField(
@@ -173,7 +185,6 @@ class _MangeQuizScreenState extends State<MangeQuizScreen> {
                     value: _initialCategory!.id,
                     child: Text(_initialCategory!.name),
                   ),
-
                 ..._categories.map(
                   (category) => DropdownMenuItem(
                     value: category.id,
@@ -181,7 +192,6 @@ class _MangeQuizScreenState extends State<MangeQuizScreen> {
                   ),
                 ),
               ],
-
               onChanged: (value) {
                 setState(() {
                   _selectedCategoryId = value;
@@ -190,146 +200,157 @@ class _MangeQuizScreenState extends State<MangeQuizScreen> {
             ),
           ),
           Expanded(
-            child: StreamBuilder(
-              stream: _getQuizStream(),
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Center(child: Text('it has error'));
-                }
-                // if it has  a data
-                if (!snapshot.hasData) {
-                  return Center(
-                    child: CircularProgressIndicator(
-                      color: AppTheme.primaryColor,
-                    ),
-                  );
-                }
-                // final value
-                final quizzes = snapshot.data!.docs
-                    .map(
-                      (doc) => Quiz.fromMap(doc.data() as Map<String, dynamic>),
-                    )
-                    .where(
-                      (quiz) =>
-                          _searchQuery.isEmpty ||
-                          quiz.title.toLowerCase().contains(_searchQuery),
-                    )
-                    .toList();
-
-                if (quizzes.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.quiz_outlined,
-                          size: 54,
-                          color: AppTheme.textSecondaryColor,
-                        ),
-                        SizedBox(height: 15),
-                        Text(
-                          'sorry no quizzes are available',
-
-                          style: TextStyle(
-                            color: AppTheme.textSecondaryColor,
-                            fontSize: 15,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => AddQuizScreen(
-                                  categoryId: widget.categoryId,
-                                ),
-                              ),
-                            );
-                          },
-                          child: Text('Add a Quiz'),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-                return ListView.builder(
-                  padding: EdgeInsets.all(16),
-                  itemCount: quizzes.length,
-                  itemBuilder: (context, index) {
-                    final Quiz quiz = quizzes[index];
-                    return Card(
-                      margin: EdgeInsets.all(12),
-                      child: ListTile(
-                        contentPadding: EdgeInsets.all(16),
-                        leading: Container(
-                          padding: EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Icon(Icons.quiz_rounded),
-                        ),
-                        title: Text(
-                          quiz.title,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                          ),
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.question_answer_outlined,
-                                  size: 16,
-                                  color: AppTheme.textSecondaryColor,
-                                ),
-                                SizedBox(width: 4),
-                                Text("${quiz.questions.length} Question"),
-                                SizedBox(width: 16),
-                                Icon(Icons.timer_outlined, size: 16),
-                                SizedBox(width: 4),
-                                Text("${quiz.timeLimti} mins"),
-                              ],
-                            ),
-                          ],
-                        ),
-                        trailing: PopupMenuButton(
-                          itemBuilder: (context) => [
-                            PopupMenuItem(
-                              value: "edit",
-                              child: ListTile(
-                                contentPadding: EdgeInsets.zero,
-                                leading: Icon(
-                                  Icons.edit,
-                                  color: AppTheme.primaryColor,
-                                ),
-                                title: Text('Edit'),
-                              ),
-                            ),
-                            PopupMenuItem(
-                              value: "delete",
-                              child: ListTile(
-                                contentPadding: EdgeInsets.zero,
-                                leading: Icon(
-                                  Icons.delete,
-                                  color: Colors.redAccent,
-                                ),
-                                title: Text('Edit'),
-                              ),
-                            ),
-                          ],
-                          onSelected: (value) =>
-                              _handleQuizAction(context, value, quiz),
-                        ),
+            child: RefreshIndicator(
+              onRefresh: _refreshQuizzes,
+              child: StreamBuilder(
+                stream: _getQuizStream(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Center(child: Text('it has error'));
+                  }
+                  if (!snapshot.hasData) {
+                    return Center(
+                      child: CircularProgressIndicator(
+                        color: AppTheme.primaryColor,
                       ),
                     );
-                  },
-                );
-              },
+                  }
+
+                  final quizzes = snapshot.data!.docs
+                      .map(
+                        (doc) => Quiz.fromMap(
+                          doc.data() as Map<String, dynamic>,
+                          doc.id,
+                        ),
+                      )
+                      .where(
+                        (quiz) =>
+                            _searchQuery.isEmpty ||
+                            quiz.title.toLowerCase().contains(_searchQuery),
+                      )
+                      .toList();
+
+                  if (quizzes.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.quiz_outlined,
+                            size: 54,
+                            color: AppTheme.textSecondaryColor,
+                          ),
+                          SizedBox(height: 15),
+                          Text(
+                            'sorry no quizzes are available',
+                            style: TextStyle(
+                              color: AppTheme.textSecondaryColor,
+                              fontSize: 15,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          ElevatedButton(
+                            onPressed: () async {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AddQuizScreen(
+                                    categoryId: widget.categoryId,
+                                    categoryName: widget.categoryName,
+                                  ),
+                                ),
+                              );
+                              if (mounted) {
+                                setState(() {});
+                              }
+                            },
+                            child: Text('Add a Quiz'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  return ListView.builder(
+                    padding: EdgeInsets.all(16),
+                    itemCount: quizzes.length,
+                    itemBuilder: (context, index) {
+                      final Quiz quiz = quizzes[index];
+                      return Card(
+                        margin: EdgeInsets.all(12),
+                        child: ListTile(
+                          contentPadding: EdgeInsets.all(16),
+                          leading: Container(
+                            padding: EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: AppTheme.primaryColor.withValues(
+                                alpha: 0.1,
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(Icons.quiz_rounded),
+                          ),
+                          title: Text(
+                            quiz.title,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.question_answer_outlined,
+                                    size: 16,
+                                    color: AppTheme.textSecondaryColor,
+                                  ),
+                                  SizedBox(width: 4),
+                                  Text("${quiz.questions.length} Question"),
+                                  SizedBox(width: 16),
+                                  Icon(Icons.timer_outlined, size: 16),
+                                  SizedBox(width: 4),
+                                  Text("${quiz.timeLimit} mins"),
+                                ],
+                              ),
+                            ],
+                          ),
+                          trailing: PopupMenuButton(
+                            itemBuilder: (context) => [
+                              PopupMenuItem(
+                                value: "edit",
+                                child: ListTile(
+                                  contentPadding: EdgeInsets.zero,
+                                  leading: Icon(
+                                    Icons.edit,
+                                    color: AppTheme.primaryColor,
+                                  ),
+                                  title: Text('Edit'),
+                                ),
+                              ),
+                              PopupMenuItem(
+                                value: "delete",
+                                child: ListTile(
+                                  contentPadding: EdgeInsets.zero,
+                                  leading: Icon(
+                                    Icons.delete,
+                                    color: Colors.redAccent,
+                                  ),
+                                  title: Text('delete'),
+                                ),
+                              ),
+                            ],
+                            onSelected: (value) =>
+                                _handleQuizAction(context, value, quiz),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           ),
         ],
@@ -340,10 +361,15 @@ class _MangeQuizScreenState extends State<MangeQuizScreen> {
   Future<void> _handleQuizAction(
     BuildContext context,
     String value,
+
     Quiz quiz,
   ) async {
     if (value == "edit") {
       // Navigator .pus(context, MaterialPageRoute(builder: ))
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => EditQuizScreen(quiz: quiz)),
+      );
     } else if (value == "delete") {
       // value declaration
       final confirm = await showDialog<bool>(
