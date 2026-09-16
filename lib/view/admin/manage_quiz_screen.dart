@@ -6,6 +6,7 @@ import 'package:flutter_application_1/theme/theme.dart';
 import 'package:flutter_application_1/view/admin/add_quiz_screen.dart';
 import 'package:flutter_application_1/view/admin/edit_quiz_screen.dart';
 
+// Lists quizzes with search, category filtering, add, edit, and delete actions.
 class MangeQuizScreen extends StatefulWidget {
   final String? categoryId;
   final String? categoryName;
@@ -17,7 +18,7 @@ class MangeQuizScreen extends StatefulWidget {
 }
 
 class _MangeQuizScreenState extends State<MangeQuizScreen> {
-  // firestore instance \
+  // Provides access to quiz and category documents.
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final TextEditingController _searchController = TextEditingController();
 
@@ -28,13 +29,14 @@ class _MangeQuizScreenState extends State<MangeQuizScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
+    // Loads categories used by the optional filter dropdown.
     super.initState();
     // for fetching the categories
     _fetchCategories();
   }
 
   Future<void> _fetchCategories() async {
+    // Retrieves categories and selects the initial category when provided.
     try {
       final querySnapshot = await _firestore.collection("categories").get();
       final categories = querySnapshot.docs
@@ -55,28 +57,25 @@ class _MangeQuizScreenState extends State<MangeQuizScreen> {
         }
       });
     } catch (e) {
-      // SnackBar
       print('Error while fetching your categories $e');
     }
   }
 
-  // stream
+  // Creates a live quiz query with the currently selected category filter.
   Stream<QuerySnapshot> _getQuizStream() {
     Query query = _firestore.collection("quizzes");
 
     String? filterCategoryId = _selectedCategoryId ?? widget.categoryId;
 
-    // conddition case
     if (filterCategoryId != null) {
       query = query.where("categoryId", isEqualTo: filterCategoryId);
     }
-
-    // // another condition
 
     return query.snapshots();
   }
 
   Widget _buildTitle() {
+    // Displays either a generic title or the selected category name.
     String? categoryId = _selectedCategoryId ?? widget.categoryId;
     if (categoryId == null) {
       return Text(
@@ -108,6 +107,7 @@ class _MangeQuizScreenState extends State<MangeQuizScreen> {
   }
 
   Future<void> _refreshQuizzes() async {
+    // Updates the search value when the list is pulled to refresh.
     setState(() {
       _searchQuery = _searchController.text.trim().toLowerCase();
     });
@@ -116,6 +116,7 @@ class _MangeQuizScreenState extends State<MangeQuizScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Builds search/filter controls and the live quiz results list.
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppTheme.backgroundColor,

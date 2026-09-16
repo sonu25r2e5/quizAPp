@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_application_1/theme/theme.dart';
 
+// Builds the dashboard card that summarizes quizzes grouped by category.
 Card categoryStatistics(List<dynamic> categoryData) {
   return Card(
     color: AppTheme.backgroundColor,
@@ -29,10 +30,10 @@ Card categoryStatistics(List<dynamic> categoryData) {
             ],
           ),
           SizedBox(height: 20),
-          // listview
+          // Keeps the category list inside the dashboard's outer scroll view.
           ListView.builder(
             shrinkWrap: true,
-            //physis
+            // Prevents nested scrolling conflicts with the parent ListView.
             physics: NeverScrollableScrollPhysics(),
             itemCount: categoryData.length,
             itemBuilder: (context, index) {
@@ -41,7 +42,7 @@ Card categoryStatistics(List<dynamic> categoryData) {
                 0,
                 (sum, item) => sum + (item['count'] as int),
               );
-              // percentage for calculating the number of quizzes we use it .
+              // Calculates this category's share of all quizzes.
               final percentage = totalQuizzes > 0
                   ? (category['count'] as int) / totalQuizzes * 100
                   : 0.0;
@@ -76,7 +77,7 @@ Card categoryStatistics(List<dynamic> categoryData) {
                       ),
                     ),
 
-                    // for onle row ,
+                    // Highlights the calculated percentage for this category.
                     Container(
                       padding: EdgeInsets.symmetric(
                         horizontal: 12,

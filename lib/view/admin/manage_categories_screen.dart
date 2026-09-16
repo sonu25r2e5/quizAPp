@@ -5,6 +5,7 @@ import 'package:flutter_application_1/model/category.dart';
 import 'package:flutter_application_1/view/admin/add_category_screen.dart';
 import 'package:flutter_application_1/view/admin/manage_quiz_screen.dart';
 
+// Lists categories and provides add, edit, delete, and quiz navigation actions.
 class ManageCategoriesScreen extends StatefulWidget {
   const new({super.key});
 
@@ -13,10 +14,12 @@ class ManageCategoriesScreen extends StatefulWidget {
 }
 
 class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
+  // Reads category documents and performs category mutations.
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
   Widget build(BuildContext context) {
+    // Builds a live category list from the Firestore categories collection.
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppTheme.backgroundColor,
@@ -48,7 +51,7 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
             );
           }
 
-          // if the data is empty then we use this.
+          // Shows a loading state until the first snapshot is available.
           final data = snapshot.data;
           if (data == null) {
             return Center(
@@ -61,12 +64,12 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
               ),
             );
           }
-          // for managing the screen we use this one.
+          // Converts Firestore documents into strongly typed category models.
           final categories = data.docs
               .map((doc) => Category.fromMap(doc.id, doc.data()))
               .toList();
 
-          // if it categories is empty we use this one.
+          // Offers a direct add action when no categories exist yet.
           if (categories.isEmpty) {
             return Center(
               child: Column(
@@ -97,11 +100,10 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
             );
           }
 
-          // for giving the conent of the file we place here.
+          // Renders each category with edit, delete, and quiz-list actions.
           return ListView.builder(
             itemCount: categories.length,
             itemBuilder: (BuildContext context, index) {
-              // for index we use this. Category class
               final Category category = categories[index];
               return Card(
                 margin: EdgeInsets.only(bottom: 12),
@@ -176,6 +178,7 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
     String action,
     Category category,
   ) async {
+    // Routes the selected popup action to edit or delete behavior.
     if (action == "edit") {
       Navigator.push(
         context,
@@ -205,9 +208,8 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
           ],
         ),
       );
-      // await _firestore.collection("categories").doc(category.id).delete();
       if (confirm == true) {
-        // for instaling the itrem inside it  we use this line
+        // Deletes the category only after explicit confirmation.
         await _firestore.collection('categories').doc(category.id).delete();
       }
     }

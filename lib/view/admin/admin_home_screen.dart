@@ -7,6 +7,7 @@ import 'package:flutter_application_1/view/admin/manage_categories_screen.dart';
 import 'package:flutter_application_1/view/admin/manage_quiz_screen.dart';
 import 'package:flutter_application_1/view/admin/recentActivites.dart';
 
+// Displays the administrator dashboard and its Firestore-backed statistics.
 class AdminHomeScreen extends StatefulWidget {
   const new({super.key});
 
@@ -15,7 +16,7 @@ class AdminHomeScreen extends StatefulWidget {
 }
 
 class _AdminHomeScreenState extends State<AdminHomeScreen> {
-  // this is from the console store collection
+  // Uses Firestore to load category, quiz, and activity data.
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   late Future<Map<String, dynamic>> _statsFuture;
 
@@ -26,6 +27,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   }
 
   Future<void> _refreshDashboard() async {
+    // Replaces the future so FutureBuilder requests fresh dashboard data.
     setState(() {
       _statsFuture = _fetchStatistics();
     });
@@ -33,6 +35,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   }
 
   DateTime? _readTimestamp(dynamic value) {
+    // Converts the timestamp formats that may be stored in Firestore.
     if (value == null) return null;
     if (value is Timestamp) return value.toDate();
     if (value is DateTime) return value;
@@ -41,7 +44,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     return null;
   }
 
-  // map
+  // Loads dashboard counts, recent quizzes, and quiz totals by category.
   Future<Map<String, dynamic>> _fetchStatistics() async {
     final categoriesCount = await _firestore
         .collection('categories')
@@ -63,7 +66,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       });
 
     final categories = await _firestore.collection('categories').get();
-    // categories data
+    // Builds the quiz count for every category shown in the statistics card.
     final categoryData = await Future.wait(
       categories.docs.map((category) async {
         // for getting the data from fire store we use this.
@@ -88,13 +91,12 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     };
   }
 
-  // for sformat data we make a function
-
+  // Formats activity dates for display in the recent activity card.
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
   }
 
-  // for building statecard
+  // Creates a reusable card for a dashboard summary value.
   Widget _buildStatCard(
     String title,
     String value,
@@ -148,6 +150,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     IconData icon,
     Color color,
   ) {
+    // Creates a reusable quick-action tile that navigates to an admin screen.
     return Card(
       color: AppTheme.backgroundColor,
       child: InkWell(
@@ -186,6 +189,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Builds the dashboard, loading state, error state, and statistics view.
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppTheme.backgroundColor,
@@ -296,20 +300,6 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                             crossAxisSpacing: 16,
                             crossAxisCount: 2,
                             children: [
-                              _buildDashBoard(
-                                context,
-                                'Create_Quiz',
-                                () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => CreateQuizScreen(),
-                                    ),
-                                  );
-                                },
-                                Icons.add_rounded,
-                                Colors.black,
-                              ),
                               _buildDashBoard(
                                 context,
                                 'Manage_Quizzes',

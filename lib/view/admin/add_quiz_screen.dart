@@ -5,6 +5,7 @@ import 'package:flutter_application_1/model/question.dart';
 import 'package:flutter_application_1/model/quiz.dart';
 import 'package:flutter_application_1/theme/theme.dart';
 
+// Provides the form used to create a quiz and its multiple-choice questions.
 class AddQuizScreen extends StatefulWidget {
   final String? categoryId;
   final String? categoryName;
@@ -15,10 +16,9 @@ class AddQuizScreen extends StatefulWidget {
   State<AddQuizScreen> createState() => _AddQuizScreenState();
 }
 
-// question class
-
+// Holds the controllers and selected answer for one question form row.
 class QuestionFormItem {
-  // controller stes
+  // Controllers keep the text fields synchronized with the form state.
   final TextEditingController questionControllers;
   final List<TextEditingController> optionsControllers;
   int correctOptionsIndex;
@@ -29,8 +29,7 @@ class QuestionFormItem {
     this.correctOptionsIndex,
   );
 
-  // dispose is used for cleaning up tthe resources that is located in your mobile because you have
-  // created a element some size in mobile
+  // Releases all controllers created for this question.
   void dispose() {
     questionControllers.dispose();
     for (var element in optionsControllers) {
@@ -40,8 +39,7 @@ class QuestionFormItem {
 }
 
 class _AddQuizScreenState extends State<AddQuizScreen> {
-  // all this property are used by the formfield
-  // formstate is used for formfield to save and delete and reset the data that's is nothing more.
+  // Stores form validation state and the values entered by the administrator.
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _timeLimitController = TextEditingController();
@@ -53,7 +51,7 @@ class _AddQuizScreenState extends State<AddQuizScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
+    // Applies the optional category and starts with one question row.
     super.initState();
     _selectedCategoryId = widget.categoryId;
     _categoryName = widget.categoryName;
@@ -62,6 +60,7 @@ class _AddQuizScreenState extends State<AddQuizScreen> {
   }
 
   Future<void> _loadCategoryName() async {
+    // Loads a category label when only its ID was supplied by the caller.
     if ((_categoryName?.trim().isNotEmpty ?? false) ||
         widget.categoryId == null) {
       return;
@@ -83,7 +82,7 @@ class _AddQuizScreenState extends State<AddQuizScreen> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
+    // Releases all text controllers before the screen is removed.
     _titleController.dispose();
     _timeLimitController.dispose();
     for (var item in _questionsItems) {
@@ -93,6 +92,7 @@ class _AddQuizScreenState extends State<AddQuizScreen> {
   }
 
   void _addQuestion() {
+    // Adds a question with four empty answer options.
     setState(() {
       // for adding question
       _questionsItems.add(
@@ -107,6 +107,7 @@ class _AddQuizScreenState extends State<AddQuizScreen> {
   }
 
   void _removeQuestion(int index) {
+    // Removes the selected question and releases its controllers.
     setState(() {
       _questionsItems[index].dispose();
       _questionsItems.removeAt(index);
@@ -114,8 +115,12 @@ class _AddQuizScreenState extends State<AddQuizScreen> {
   }
 
   Future<void> _saveQuiz() async {
+    // Validates the form, converts rows into model objects, and saves the quiz.
     if (!_formKey.currentState!.validate()) {
       return;
+      setState(() {
+        _isLoading = true;
+      });
     }
 
     if (_selectedCategoryId == null) {
@@ -139,7 +144,7 @@ class _AddQuizScreenState extends State<AddQuizScreen> {
             ),
           )
           .toList();
-      // to store in firestore cloud we use this.
+      // Creates a document reference so the generated ID is stored in the model.
       final quizDocument = _firestore.collection("quizzes").doc();
       await quizDocument.set(
         Quiz(
@@ -174,6 +179,7 @@ class _AddQuizScreenState extends State<AddQuizScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Builds quiz metadata fields, category selection, and question editors.
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppTheme.backgroundColor,
@@ -183,6 +189,12 @@ class _AddQuizScreenState extends State<AddQuizScreen> {
               : 'Add Some Quiz Question',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
+        actions: [
+          IconButton(
+            onPressed: _isLoading ? null : _saveQuiz,
+            icon: Icon(Icons.save),
+          ),
+        ],
       ),
       body: Form(
         key: _formKey,
@@ -303,7 +315,8 @@ class _AddQuizScreenState extends State<AddQuizScreen> {
                     return null;
                   },
                 ),
-                SizedBox(height: 20),
+                SizedBox(height: 16),
+                // up to here
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/theme/theme.dart';
 
+// Converts supported Firestore date representations into DateTime values.
 DateTime? _parseFirestoreDate(dynamic value) {
   if (value == null) return null;
   if (value is Timestamp) return value.toDate();
@@ -15,6 +16,7 @@ Card recentlyActivites(
   List<QueryDocumentSnapshot<Object?>> latestQuizzes,
   String Function(DateTime) formatDate,
 ) {
+  // Builds the dashboard card showing the most recently created quizzes.
   return Card(
     color: AppTheme.backgroundColor,
     child: Padding(
@@ -42,6 +44,7 @@ Card recentlyActivites(
           ),
           SizedBox(height: 20),
           ListView.builder(
+            // Keeps this list embedded in the dashboard's parent scroll view.
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
             itemCount: latestQuizzes.length,

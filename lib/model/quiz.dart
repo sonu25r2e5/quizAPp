@@ -39,6 +39,7 @@ class Quiz {
       id: documentId ?? map['id'] ?? '',
       title: map['title'] ?? '',
       category: map['category'] ?? map['categoryId'] ?? '',
+
       timeLimit: map['timeLimit'] ?? map['timeLimti'] ?? 0,
       questions: ((map['questions'] ?? []) as List)
           .map((e) => Question.fromMap(e))
@@ -48,20 +49,19 @@ class Quiz {
     );
   }
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toMap({bool isUpadate = false}) {
     return <String, dynamic>{
       'id': id,
       'title': title,
       'category': category,
       'categoryId': category,
+
       'timeLimit': timeLimit,
       'questions': questions.map((x) => x.toMap()).toList(),
       'createdAt': createdAt != null
           ? Timestamp.fromDate(createdAt!)
           : FieldValue.serverTimestamp(),
-      'updateAt': updateAt != null
-          ? Timestamp.fromDate(updateAt!)
-          : FieldValue.serverTimestamp(),
+      if (isUpadate) 'updatedAt': DateTime.now(),
     };
   }
 

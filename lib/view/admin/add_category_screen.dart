@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/model/category.dart';
 import 'package:flutter_application_1/theme/theme.dart';
 
+// Provides a form for creating a category or editing an existing category.
 class AddCategoryScreen extends StatefulWidget {
   final Category? category;
 
@@ -14,16 +15,17 @@ class AddCategoryScreen extends StatefulWidget {
 }
 
 class _AddCategoryScreenState extends State<AddCategoryScreen> {
-  //creating a key
+  // Tracks form validation before data is written to Firestore.
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late TextEditingController _descriptionController;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  // bool value
+  // Disables the save button while the Firestore request is running.
   bool _isLoading = false;
 
   @override
   void initState() {
+    // Pre-fills the form when the screen is opened for editing.
     super.initState();
     _nameController = TextEditingController(text: widget.category?.name);
     _descriptionController = TextEditingController(
@@ -33,13 +35,14 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
+    // Releases the text controllers owned by this screen.
     _nameController.dispose();
     _descriptionController.dispose();
     super.dispose();
   }
 
   Future<void> _saveCategory() async {
+    // Validates the form, then creates or updates the category document.
     if (!(_formKey.currentState?.validate() ?? false)) {
       return;
     }
@@ -50,6 +53,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
     try {
       final category = widget.category;
       if (category != null) {
+        // Existing categories keep their document ID while their fields change.
         final updatedCategory = category.copyWith(
           name: _nameController.text.trim(),
           description: _descriptionController.text.trim(),
@@ -64,6 +68,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
           SnackBar(content: Text('Category updated successfully')),
         );
       } else {
+        // New categories receive a generated Firestore document ID.
         await _firestore
             .collection("categories")
             .add(
@@ -89,6 +94,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
   }
 
   Future<bool> _onWillPop() async {
+    // Asks for confirmation before leaving a form containing user input.
     if (_nameController.text.isNotEmpty ||
         _descriptionController.text.isNotEmpty) {
       return await showDialog<bool>(
@@ -122,6 +128,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Builds the category form and switches its title for add/edit mode.
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
